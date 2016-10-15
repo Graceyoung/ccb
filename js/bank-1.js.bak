@@ -1,0 +1,50 @@
+$(function(){
+	//banner轮播
+	$('#banner ul.big-banner li').carousel();
+	//点击右侧返回按钮返回到顶部
+	//滚动返回按钮出现
+	var $back = $('#back');
+	$(window).scroll(function(){
+		var $top = $(window).scrollTop();
+		if($top>=70){
+			$back.show();
+		}else{
+			$back.hide();
+		}
+	});
+	//点击按钮返回顶部
+	$back.click(function(){
+		$('body').animate({
+			scrollTop:0//$('#header').offset().top
+		},1000);
+	});
+	//placeholder兼容IE
+	supportPlaceholder='placeholder'in document.createElement('input');//判断浏览器是否支持placeholder
+	if(!supportPlaceholder){
+		var $input = $('input[type!="submit"]');
+		$input.focus(function(){
+			var $this = $(this);
+			if($this.val()==$this.attr('placeholder')){
+				$this.val("");
+			}
+			if($this.attr('class')=='keyword')$this.attr('type','password');
+		});
+		$input.blur(function(){
+			var $this = $(this);
+			if($this.val()==$this.attr('placeholder')){
+				$this.val($this.attr('placeholder'));
+				$this.attr('type','text');
+			}
+		});
+		$input.each(function(){
+			var $this = $(this);
+			var $placeholder = $this.attr('placeholder');
+			if($placeholder!=null){
+				$this.val($placeholder);
+				$this.attr('type','text');
+			}
+		});
+	}
+	
+});
+

@@ -1,0 +1,593 @@
+$(function(){
+	//关闭按钮
+	$('.close').each(function(){
+		var $this = $(this);
+		$this.click(function(){
+			$this.parent().parent().hide();
+		});
+	});
+	
+	 //左右按钮切换内容
+	$('span.next').controlSwitch();
+	$('span.prev').controlSwitch();
+	//页头 放大正常字体
+	$('#phd a.phd-large').click(function(){
+		console.log($('body').css('zoom'));
+		//IE9 zoom:100%; IE8、7 zoom:1345px;
+		if(($('body').css('zoom')==1)||($('body').css('zoom')=='1345px')||($('body').css('zoom')=='100%')){
+			$('body').css('zoom',1.25);
+			$('span',this).text('-正常');
+			$(document.body).css('overflow','scroll');
+		}else{
+			$('body').css('zoom',1);
+			$('span',this).text('+放大');
+		}
+	});
+	//自定义滚动条
+		$('div.scroll').selfScroll();
+
+	//定制常用功能弹窗栏
+	var $setbar = $('#pTools div.setPToolbar');
+	var $pTmask = $('#pTools div.mask');
+		//点击定制 弹窗
+	$('#pTools div.pTools-bottom div.oftenFunc span').click(function(){
+		$setbar.show();
+		$pTmask.show();
+		$(document.body).css('overflow','hidden');
+		//自定义滚动条
+		$('div.scroll',$setbar).selfScroll();
+	});
+		//关闭按钮
+	$('div.hd em',$setbar).click(function(){
+		$setbar.hide();
+		$pTmask.hide();
+		$(document.body).css('overflow','auto');
+	});
+		//选中功能
+	$('div.bd div.choice-box ul li',$setbar).click(function(event){
+		var $this = $(this);
+		var $input = $('input',$this);
+		var $choiced = $('li.have-choiced',$setbar).size();
+		var $hadli = $('div.choiced-fun ul.choiced-list li',$setbar);
+		if($input.prop('checked')==true){
+			$input.prop('checked',false);
+			$this.removeClass('have-choiced').addClass('no-choiced');
+			var $text = $('span',$this).text();
+			$hadli.each(function(){
+				if($(this).children('span').text()==$text){
+					$(this).detach();
+				}
+			});
+		}else{
+			if($choiced<6){
+				$input.prop('checked',true);
+				$this.removeClass('no-choiced').addClass('have-choiced');
+				$text =	$('span',$this).text();
+				var $create = $('<li><input type="checkbox" checked="checked" /><span>'+$text+'</span></li>');
+				$('div.choiced-fun ul.choiced-list').append($create);
+			}else{
+				$('div.tip',$setbar).show(300).delay(700).fadeOut(500);
+			}
+		}
+		$('div.bd p span.set-num').text($('li.have-choiced',$setbar).size());
+	});
+		//从已选中功能中删除功能
+	$('div.choiced-fun ul.choiced-list li',$setbar).click(function(){
+		var $this = $(this);
+		var $texts = $this.children('span').text();
+		$('div.choice-box ul li',$setbar).each(function(){
+			var $this = $(this);
+			if($('span',$this).text()==$texts){
+				$this.children('input').prop('checked',false);
+				$this.removeClass('have-choiced').addClass('no-choiced');
+			}
+		});
+		$('p.have-set span.set-num',$setbar).text($('div.choice-box ul li.have-choiced',$setbar).size());
+		$this.detach();
+	});
+		//保存所选常用功能
+	$('span.set-save',$setbar).click(function(){
+		var $cli;
+		var $oftenul = $('#pTools div.content div.pTools-bottom div.oftenFunc ul');
+		$oftenul.empty()
+		$('div.bd div.choice-box ul li',$setbar).each(function(){
+			var $this = $(this);
+			if($(this).attr('class')=='have-choiced'){
+				var $iclass = $('i',$this).attr('class');
+				var $stext = $('span',$this).text();
+				$cli = $('<li class="have-choiced"><a href=""><i class="'+$iclass+'"></i><p>'+$stext+'</p></a></li>');
+				$oftenul.append($cli);
+			}
+		});
+		$setbar.hide();
+		$pTmask.hide();
+		$(document.body).css('overflow','auto');
+	});
+		
+	//主内容左侧 快速交易 建行转建行和话费充值切换
+	$('#pmain div.pmain-left div.pl-fast ul.fast-chose li').click(function(){
+		var $this = $(this);
+		$this.addClass('color').siblings().removeClass('color');
+		$('#'+$this.attr('for')).show().siblings().hide();
+	});
+		// select下拉选择框
+	$('#pmain div.pmain-left div.pl-fast div.fast-bank form input.cards-num').select();
+	$('#pmain div.pmain-left div.pl-fast div.fast-bank form input.cards-charge').select();
+		//placeholder兼容IE
+	$('#pmain form.placeholderIe').placeholderIe();
+		//主内容左侧 输入收款人账号选择
+	$('#pmain div.pmain-left div.pl-fast div.fast-bank form div.select-account a').upselect(function($sub){
+		$('div.scroll',$sub).selfScroll();
+	});
+		//从收款人账号中搜索
+	$('#pmain form div.select-account div.select-place input').keyup(function(){
+		$('#pmain form div.select-account div.select-place ul li').hide().children('span').filter(':contains("'+this.value+'")').parent().show();
+		var $llength = $('#pmain form div.select-account div.select-place ul li:visible').size();
+		$('#pmain div.scroll').selfScroll();
+	});
+		//快速交易 单选框
+	$('#pmain div.radio-box label').click(function(){
+		var $this = $(this);
+		$this.children('input').prop('checked',true);
+		$this.siblings().children('input').prop('checked',false);
+	});
+
+	//设置主题栏和工具栏 背景换肤
+		// 显示隐藏皮肤样式
+	$('#pTools span.change-bg').click(function(){
+		$('#setTheme').toggle();
+	});
+		//换皮肤
+	$('#setTheme div.content ul li').click(function(){
+		var $this = $(this);
+		$this.addClass('curr').siblings().removeClass('curr');
+		$('#pTools').css({backgroundImage:'url(images/layout/theme_b_'+$this.index()+'.png)'});
+		$('#setTheme').css({display:'none'});
+	});
+	$('#setTheme div.content ul li').mouseover(function(){
+		var $this = $(this);
+		var $index = $this.index();
+		$('#pTools').css({backgroundImage:'url(images/layout/theme_b_'+$index+'.png)'});
+	}).mouseout(function(){
+		var $nowbg = $('#setTheme div.content ul li.curr').index();
+		$('#pTools').css({backgroundImage:'url(images/layout/theme_b_'+$nowbg+'.png)'});
+	});
+	//常用工具栏 移上去显示删除按钮
+	$('#pTools div.deal ul li').mouseover(function(){
+		var $this = $(this);
+		$('em',this).show();
+		$('em',this).click(function(){
+			$this.detach();//删除该内容
+		});
+	}).mouseout(function(){
+		$('em',this).hide();
+	});
+	//主要内容栏 右侧 下拉选择框
+	$("#pmain div.pr-property div.select input").select();
+	$("#pmain div.pr-account div.select input").select();
+
+	//主要内容栏 右侧 显示隐藏金额
+			//所有的
+	$('#pmain div.pr-title ul.money li').each(function(){
+		$(this).click(function(){
+			var $this = $(this);
+			var $isee = $this.attr('see');
+			var $relate = $this.attr('relate');//每个银行栏目里对应的 显示隐藏金额
+			var $scale = $this.attr('scale');
+			$('.'+$isee,'.'+$scale).hide();
+			$('.'+$isee,'.'+$scale).siblings().show();
+			$('.'+$relate).hide();
+			$('.'+$relate).siblings().show();
+			$this.hide();
+			$this.siblings().show();
+		});
+	});
+
+			//当前的
+	$('#pmain div.cards-detail ul li div.cards-op span').click(function(){
+		var $this = $(this);
+		var $isee = $this.attr('see');
+		var $nowli = $this.parents('li');
+		$(' .'+$isee,$nowli).hide();
+		$(' .'+$isee,$nowli).siblings().show();
+		$this.hide();
+		$this.siblings('span').show();
+	});
+
+	//右侧栏
+	var $pmain = $('#pmain');
+	var maxtop = $pmain.height()+$pmain.offset().top;
+	$(window).scroll(function(){
+		var $fixBar = $('#fixBar');
+		var scrollH = document.body.scrollHeight;//正文全文高度
+		var scrollT = $(window).scrollTop();//被卷上去的高
+		var clientH = $(window).height();//窗口高
+		var bottomH = scrollH - scrollT - clientH;//窗口底部的高
+		if(bottomH<833){//滚过的高度大于200时隐藏，否则显示 833 273
+			$('li.feedback',$fixBar).show();
+		}else{
+			$('li.feedback',$fixBar).hide();
+		}
+		if(bottomH<273){//滚过的高度大于730时，右侧栏不随滚动条的滚动而移动
+			$fixBar.css({position:'absolute',bottom:265+'px'});
+		}else{
+			$fixBar.css({position:'fixed',bottom:15+'px'});
+		}
+	});
+
+	//定制首页
+	document.body.ondragstart = function(){return false;};//禁止鼠标拖拽
+	var $main = $('#pmain');
+	var $btnInder = $('.btnIndexBar',$main);
+	var $mask = $('#setIndex-mask');
+	var $block = $('div.module div.block',$main);
+	var $drag = $('div.module div.block',$main).find(':first');
+	var $saveInder = $('button.customSave',$mask);
+	var $cancelInder = $('button.customCancel',$mask);
+		//点击定制首页，出现大遮罩层
+	$btnInder.click(function(){
+		$mask.toggle();
+			//记录定制首页之前的index
+		$block.each(function(){
+			$(this).attr('index',$(this).index());
+		});
+		if($main.toggleClass('define').has('define')){
+			//每个模块的遮罩层
+			$block.each(function(){
+				$('<div class="block-mask"></div>').appendTo($(this).find(':first'));
+				$('div.block-mask',this).css({width:$(this).width(),height:$(this).height()});
+			});
+			$drag.mousedown(function(event){
+				var event = event || window.event;
+				var offsetX = event.offsetX;
+				var offsetY = event.offsetY;
+				var $this = $(this);
+				var $parent = $this.parent();
+				$parent.addClass('drag');
+				var $body = $(document.body);
+				$body.mousemove(function(event){
+					var clientX = event.pageX;
+					var clientY = event.pageY;
+					$this.css({
+						top:clientY - offsetY - $parent.offset().top,
+						left:clientX - offsetX - $parent.offset().left
+					});
+						//俩个模块互换位子
+					$parent.siblings().each(function(){
+						var $curr = $(this);
+						if(clientY>$curr.offset().top&&clientY<($curr.offset().top+$curr.height())&&clientX>$curr.offset().left&&clientX<($curr.offset().left+$curr.width())){
+							if($curr.index()>$parent.index()){
+								$curr.after($parent);
+							}else{
+								$parent.after($curr);
+							}
+							return false;
+						}
+					});
+					return false;
+				}).mouseup(function(event){
+					$(this).unbind('mousemove');
+					$this.css({top:0,left:0});
+					$parent.removeClass('drag');
+				});
+			});
+		}else{
+			$drag.unbind('mousedown');
+		};
+		//保存修改后的模块
+		$saveInder.click(function(){
+			pastdo();
+		}); 
+		//取消修改
+		$cancelInder.click(function(){
+			$('div.module',$main).each(function(){
+				var $module = $(this);
+				var $first,$second,$three;
+				$('div.block',$module).each(function(){
+					if($(this).attr('index')==0){
+						$first = $(this);
+					}else if($(this).attr('index')==1){
+						$second = $(this);
+					}else if($(this).attr('index')==2){
+						$three = $(this);
+					}
+				});
+				$first.after($second);
+				$second.after($three);
+			});
+			pastdo();
+		});
+		//取消 保存后要做的事情
+		var pastdo = function(){
+			$mask.hide();
+			$main.removeClass('define');
+			$('div.block-mask',$main).detach();
+		}
+	});
+});
+
+
+//总资产 环形图
+$(function () {
+	var pie = new Highcharts.Chart({//要操作highcharts必须用new，直接调用函数highcharts只用于展示
+		chart: {
+			renderTo:"pie",//相当于 $('#pie')
+			plotBackgroundColor: null,
+			plotBorderWidth: null,
+			plotShadow: false,
+			margin:[0,0,0,0],
+			width:'185',
+			height:'185',
+		},
+		title:false,//标题选项
+		tooltip: {
+			pointFormat: '<b>{point.percentage:.1f}%</b>',
+			hideDelay:50//等到提示隐藏当鼠标从一个点或一个图的毫秒数
+		},
+		 plotOptions: {
+			pie: {
+				allowPointSelect: true,
+				cursor: 'pointer',
+				innerSize:'50',
+				borderWidth:'0',
+				dataLabels: {
+					enabled: false,
+					color: '#000000',
+					connectorColor: '#000000',
+					format: '<b>{point.totalValue}</b>: {point.percentage:.1f}%'
+				}
+			}
+		},
+		exporting:{			//图表导出功能模块
+			enabled:false	
+		},
+		credits:{			//版权链接选项
+			enabled:false	
+		},
+		 series: [{			//数据列选项
+			type: 'pie',
+			name: '总资产',
+			data: [
+				{name:'活期',	y: 37, color:'#4FA6E0'},
+				{name:'定期',	y: 20, color:'#61C0E8'},
+				{name:'理财产品', y: 20, color:'#FC9A5D'},
+				{name:'基金',	y: 15, color:'#7ADAF5'},
+				{name:'国债',	y: 8, color:'#FFCD59'}
+			],
+			point: {//弹出基金信息表
+				events: {
+					select: function () {
+						$(".pop_pie").hide();
+						var name = this.name;
+						switch(name){
+							case "基金":
+								$("#pop_pie_jj").addClass("fund_show");
+								$("#pop_pie_jj div.scroll").addClass("fund_show");
+								$('#pop_pie_jj div.scroll').selfScroll();
+								break;
+							default:
+								break;	
+						}
+					},
+					unselect: function (){
+						$(".pop_pie").hide();
+						var name = this.name;
+						switch(name){
+							case "基金":
+								$("#pop_pie_jj").removeClass("fund_show");
+								break;
+							default:
+								break;	
+						}
+					}
+				}
+			}
+		}],
+	});
+
+	$('#pie_list li').each(function(){
+		var index = $(this).index();
+		$(this).children('em').css('background-color',pie.series[0].data[index].color);
+		$(this).find('div.hoverbox').css('border-color',pie.series[0].data[index].color);
+		$(this).find('span.name').text(pie.series[0].data[index].name);
+		$(this).find('span.rate').text(pie.series[0].data[index].y+'%');
+	});
+	$('#pie_list li').click(function(){
+		var index = $(this).index();
+		pie.series[0].data[index].select();
+	});
+
+	// 饼图弹窗
+	$(".pop_pie").on("click",".close",function(){
+		$(this).closest(".pop_pie").removeClass("fund_show");
+		pie.series[0].data[3].select();					//选择饼图扇区
+	});
+	
+});
+
+//总负债 环形图
+$(function () {
+	var debtpie = new Highcharts.Chart({
+		chart: {
+			renderTo:"debtpie",//设置显示图表的容器，相当于 $('#pie')
+			plotBackgroundColor: null,
+			plotBorderWidth: null,
+			plotShadow: false,
+			margin:[0,0,0,0],
+			width:'185',
+			height:'185',
+		},
+		title:false,//标题选项
+		tooltip: {
+			pointFormat: '<b>{point.percentage:.1f}%</b>',
+			hideDelay:50//等到提示隐藏当鼠标从一个点或一个图的毫秒数
+		},
+		 plotOptions: {
+			pie: {
+				allowPointSelect: true,
+				cursor: 'pointer',
+				innerSize:'50',
+				borderWidth:'0',
+				dataLabels: {
+					enabled: false,
+					color: '#000000',
+					connectorColor: '#000000',
+					format: '<b>{point.totalValue}</b>: {point.percentage:.1f}%'
+				}
+			}
+		},
+		exporting:{			//图表导出功能模块
+			enabled:false	
+		},
+		credits:{			//版权链接选项
+			enabled:false	
+		},
+		 series: [{			//数据列选项
+			type: 'pie',
+			name: '总负债',
+			data: [
+				{name:'信用卡',	y: 63, color:'#58C473'},
+				{name:'房贷',	y: 15, color:'#6CD990'},
+				{name:'车贷', 	y: 12, color:'#FFCD59'},
+				{name:'债务',	y: 10, color:'#9FD46A'}
+			],
+			point: {
+				events: {
+					click: function () {
+						console.log('Category: ' + this.name + ', value:' + this.y);
+					}
+				}
+			}
+		}]
+	});
+	$('#total_pie li').each(function(){
+		var index = $(this).index();
+		$(this).children('em').css('background-color',debtpie.series[0].data[index].color);
+		$(this).find('div.hoverbox').css('border-color',debtpie.series[0].data[index].color);
+		$(this).find('span.name').text(debtpie.series[0].data[index].name);
+		$(this).find('span.rate').text(debtpie.series[0].data[index].y+'%');
+	});
+});
+
+//资产走势 折面图
+$(function () {
+	$('#property_line').highcharts({
+		 chart: {
+			type: 'area',//按面还是线..显示
+			width:728,
+			height:230,
+			spacingLeft:50,
+			spacingRight:50,
+			spacingTop:20
+		},
+		title: {
+			text: '资产走势图',
+			style:{fontFamily:'微软雅黑',fontSize:'16px',fontWeight:'bold'},
+			
+		},
+		subtitle:false,
+		xAxis: {
+			lineColor:'#D8D8D8',
+			gridLineColor:'#D8D8D8',
+			categories: ['1月', '2月', '3月', '4月', '5月', '6月',
+				'7月', '8月', '9月', '10月', '11月', '12月','1月','2月'],
+			tickmarkPlacement:'on',
+			title:{
+				enabled:false
+			}
+		},
+		 yAxis: {
+			title: {
+				enabled: false
+			},
+			lineWidth:'1',
+			lineColor:'#D8D8D8',
+			gridLineColor:'#D8D8D8',
+			ceiling:320000,
+			endOnTick:true,
+			labels: {
+				formatter: function() {
+					return this.value / 10000+'万';
+				}
+			}
+		},
+		legend:{
+			enabled: false//隐藏 说明文字--总资产
+		},//总资产说明
+		credits:false,		//
+		exporting:false,
+		tooltip: {
+			shared:true,
+			valueDecimals:2,
+			valueSuffix:'元',
+			backgroundColor:'#FDF5C7',
+			borderWidth:1,
+			borderColor:'#E5BB30',
+			borderRadius:0,
+			shadow:false
+		},
+		 plotOptions: {
+			area: {
+				stacking:'normal',
+				lineColor:'#FFB80C',
+				lineWidth: 2,		
+				states:{
+					hover:{
+						lineWidth: 2
+					}
+				},
+				marker: {					//小圆点
+					lineWidth:2,
+					lineColor:'#FFB80C',
+					fillColor:'#fff',
+					states:{
+						hover:{
+							fillColor:'#FFB80C',
+							lineColor:'#FFB80C',
+							radius:4
+						}
+					}
+				},
+				fillColor:{
+					linearGradient: [0, 0, 0, 150],
+					stops: [
+						[0, 'rgba(255, 184, 11,.8)'],
+						[1, 'rgba(255, 255, 255,.5)']
+					]
+				}
+			}
+		},
+		series: [{
+			name: '总资产',
+			data: [120000.00,140000.00,150000.00,180000.00,160000.00,240000.00,320000.00,280000.00,220000.00,240000.00,180000.00,150000.00,250000.00,280000.00]
+		}]
+	});
+});
+
+$(function(){
+	//资产负债和资产走势图切换
+	$('#pmain div.property-trend ul.property-way li').click(function(){
+		var $this = $(this);
+		var appears = $this.attr('for');
+		$this.attr('istrend')=='true'?$this.parent().addClass('trend'):$this.parent().removeClass('trend');
+		$('#'+appears).show();
+		$('#'+appears).siblings('div.property-sub').hide();
+
+	});
+	//总资产和总负债切换
+	$('#pmain div.property-sub div.debt i').click(function(){
+		var $this = $(this);
+		var hide = $this.attr('miss');
+		var appear = $this.attr('appear');
+		$('div.'+hide).hide();
+		$('div.'+appear).show();
+		$this.hide();
+		$this.siblings('i').show();
+		var $left = $this.parent().position().left;
+		$left = $left==485?170:485;
+		$this.parent().animate({'left':$left},400);
+	});
+});
+
+			
+
